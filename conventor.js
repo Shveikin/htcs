@@ -1,5 +1,4 @@
 // code pulled from https://www.npmjs.com/package/html2hyperscript
-fs = require('fs');
 var Parser = require('htmlparser2').Parser;
 var ent = require('ent');
 
@@ -91,13 +90,9 @@ module.exports = function(html, output, lang = 'php') {
             
         },
         onend: function () {
-            const code = beautify(currentItemList.content[0] + ';', { indent_size: 4, space_in_empty_paren: true })
+            const code = beautify(currentItemList.content[0]/* .join(';\n\n') */ + ';', { indent_size: 4, space_in_empty_paren: true })
 
-            if (typeof output == 'function'){
-                output(code)
-            } else {
-                fs.writeFile(output + '.' + lang, (lang=='php'?'<?php\n\n':'') + code, (err) => {})
-            }
+            output(code)
         }
     }, {decodeEntities: true, xmlMode: true});
 
