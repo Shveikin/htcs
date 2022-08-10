@@ -1,12 +1,10 @@
 // code pulled from https://www.npmjs.com/package/html2hyperscript
 fs = require('fs');
 var Parser = require('htmlparser2').Parser;
-var camel = require('to-camel-case');
 var ent = require('ent');
-var isEmpty = require('is-empty');
-var thisIsSVGTag = require('./lib/svg-namespaces').thisIsSVGTag,
-    getSVGNamespace = require('./lib/svg-namespaces').getSVGNamespace,
-    getSVGAttributeNamespace = require('./lib/svg-namespaces').getSVGAttributeNamespace;
+
+const beautify = require('js-beautify');
+
 
 var elementStack = [];
 
@@ -74,15 +72,17 @@ module.exports = function(html, outputFileName, lang = 'php') {
 
 
             if (lang=='php' && childs.length){
-                const childStr = childs.length>1?childs.join(', '):childs[0]
+                let childStr = childs.join(',\n')
+                if (childs.length!=1)
+                    childStr = `[\n${childStr}\n]`
                 content.push(childStr)
             }
 
             if (Object.keys(props).length){
-                content.push(currentItemList.implodex(props))
+                content.push((content.length?'\n':'') + currentItemList.implodex(props))
             }
 
-            let item = `c${lang=='php'?'::':'.'}${tag}(${content.join(', ')})` 
+            let item = `c${lang=='php'?'::':'.'}${tag}(\n${content.join(', ')}\n)\n` 
 
             currentItemList = currentItemList.parent
             currentItemList.add(item);
@@ -93,7 +93,9 @@ module.exports = function(html, outputFileName, lang = 'php') {
         onend: function () {
             // console.log(currentItemList.content)
             console.log('ok')
-            fs.writeFile(outputFileName + '.' + lang, currentItemList.content[0] + ';', (err) => {})
+
+            const code = beautify(currentItemList.content[0], { indent_size: 4, space_in_empty_paren: true })
+            fs.writeFile(outputFileName + '.' + lang, code + ';', (err) => {})
             // cb(null, currentItemList.content);
         }
     }, {decodeEntities: true, xmlMode: true});
