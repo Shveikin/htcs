@@ -12,6 +12,8 @@
   "license": "ISC",
   "dependencies": {
     "js-beautify": "^1.14.5",
-    "nodemon": "^2.0.19"
+    "nodemon": "^2.0.19",
+    "htmlparser2": "^3.8.2",
+    "ent": "^2.2.0"
   }
 }

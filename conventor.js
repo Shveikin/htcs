@@ -42,7 +42,7 @@ ItemList.prototype.implodex = function (data) {
     return result.join(', ')
 }
 
-module.exports = function(html, outputFileName, lang = 'php') {
+module.exports = function(html, output, lang = 'php') {
     var currentItemList = new ItemList(null);
 
     var parser = new Parser({
@@ -91,12 +91,13 @@ module.exports = function(html, outputFileName, lang = 'php') {
             
         },
         onend: function () {
-            // console.log(currentItemList.content)
-            console.log('ok')
+            const code = beautify(currentItemList.content[0] + ';', { indent_size: 4, space_in_empty_paren: true })
 
-            const code = beautify(currentItemList.content[0], { indent_size: 4, space_in_empty_paren: true })
-            fs.writeFile(outputFileName + '.' + lang, code + ';', (err) => {})
-            // cb(null, currentItemList.content);
+            if (typeof output == 'function'){
+                output(code)
+            } else {
+                fs.writeFile(output + '.' + lang, (lang=='php'?'<?php\n\n':'') + code, (err) => {})
+            }
         }
     }, {decodeEntities: true, xmlMode: true});
 
